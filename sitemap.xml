@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://edmon02.github.io/</loc>
+    <lastmod>2025-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://edmon02.github.io/#about</loc>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://edmon02.github.io/#skills</loc>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://edmon02.github.io/#experience</loc>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://edmon02.github.io/#projects</loc>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://edmon02.github.io/#education</loc>
+    <changefreq>yearly</changefreq>
+  </url>
+  <url>
+    <loc>https://edmon02.github.io/#contact</loc>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://edmon02.github.io/privacy.html</loc>
+    <changefreq>yearly</changefreq>
+  </url>
+</urlset>
