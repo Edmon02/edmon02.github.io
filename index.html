@@ -532,7 +532,9 @@
     }
     #armenian-letter {
       position: absolute;
-      font-size: clamp(12rem, 20vw, 18rem);
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(10rem, 18vw, 16rem);
       font-weight: 700;
       color: transparent;
       -webkit-text-stroke: 1px rgba(0,255,179,0.25);
@@ -542,6 +544,7 @@
       pointer-events: none;
       animation: letterPulse 4s ease-in-out infinite;
       transition: opacity 0.8s var(--ease-out);
+      line-height: 1;
     }
     @keyframes letterPulse {
       0%, 100% { -webkit-text-stroke-color: rgba(0,255,179,0.2); text-shadow: 0 0 60px rgba(0,255,179,0.06); }
@@ -644,6 +647,7 @@
     .stat-card:nth-child(2) { transition-delay: 0.25s; }
     .stat-card:nth-child(3) { transition-delay: 0.35s; }
     .stat-card:hover {
+      transition-delay: 0s;
       border-color: var(--neural);
       box-shadow: 0 0 30px var(--neural-glow);
       transform: translateX(-4px);
@@ -688,15 +692,17 @@
     #skills-canvas-wrap::before {
       content: 'NEURAL MAP v2.1 — hover nodes to explore connections';
       position: absolute;
-      top: 1rem; left: 1.5rem;
+      top: 0.75rem; left: 1.5rem;
       font-family: var(--font-mono);
       font-size: 0.6rem;
       letter-spacing: 0.12em;
       color: rgba(0,255,179,0.3);
       text-transform: uppercase;
       z-index: 2;
+      pointer-events: none;
     }
-    #skills-canvas { display: block; width: 100%; }
+    /* Top padding so the label doesn't overlap the top row of nodes */
+    #skills-canvas { display: block; width: 100%; padding-top: 2.5rem; }
     #skill-tooltip {
       position: absolute;
       background: rgba(6, 9, 26, 0.95);
@@ -733,9 +739,11 @@
       transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
     }
     .section.awakened .timeline-item { opacity: 1; transform: translateX(0); }
-    .section.awakened .timeline-item:nth-child(1) { transition-delay: 0.1s; }
-    .section.awakened .timeline-item:nth-child(2) { transition-delay: 0.25s; }
-    .section.awakened .timeline-item:nth-child(3) { transition-delay: 0.4s; }
+    .section.awakened .timeline-item:nth-child(1) { transition-delay: 0.08s; }
+    .section.awakened .timeline-item:nth-child(2) { transition-delay: 0.22s; }
+    .section.awakened .timeline-item:nth-child(3) { transition-delay: 0.36s; }
+    /* Reset delay for hover interactions */
+    .timeline-item:hover { transition-delay: 0s; }
     .timeline-dot {
       position: absolute;
       left: -2rem; top: 6px;
@@ -784,6 +792,19 @@
 
     /* ── PROJECTS ───────────────────────────────────────────── */
     #projects { padding-bottom: 5rem; }
+
+    /* Cards start hidden and animate in when section awakens */
+    .project-artifact {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.65s var(--ease-out), transform 0.65s var(--ease-out);
+    }
+    .section.awakened .project-artifact { opacity: 1; transform: translateY(0); }
+    .section.awakened .project-artifact:nth-child(1) { transition-delay: 0.00s; }
+    .section.awakened .project-artifact:nth-child(2) { transition-delay: 0.10s; }
+    .section.awakened .project-artifact:nth-child(3) { transition-delay: 0.20s; }
+    .section.awakened .project-artifact:nth-child(4) { transition-delay: 0.30s; }
+    .section.awakened .project-artifact:nth-child(5) { transition-delay: 0.40s; }
     .proj-filters {
       display: flex; gap: 0.75rem;
       flex-wrap: wrap;
@@ -818,6 +839,7 @@
     .project-artifact {
       perspective: 800px;
       cursor: pointer;
+      /* opacity/transform entrance handled above via .section.awakened */
     }
     .artifact-inner {
       position: relative;
@@ -1000,6 +1022,7 @@
     .section.awakened .edu-card:nth-child(1) { transition-delay: 0.1s; }
     .section.awakened .edu-card:nth-child(2) { transition-delay: 0.25s; }
     .edu-card:hover {
+      transition-delay: 0s;
       border-color: rgba(0,255,179,0.25);
       box-shadow: 0 8px 40px rgba(0,0,0,0.4);
     }
@@ -1067,6 +1090,7 @@
     .section.awakened .contact-card:nth-child(3) { transition-delay: 0.25s; }
     .section.awakened .contact-card:nth-child(4) { transition-delay: 0.35s; }
     .contact-card:hover {
+      transition-delay: 0s;
       border-color: var(--neural);
       box-shadow: 0 0 30px var(--neural-glow);
     }
@@ -1358,7 +1382,7 @@
 
       <!-- Hero right: orb + Armenian letter -->
       <div class="hero-right" aria-hidden="true">
-        <div id="armenian-letter">Ե</div>
+        <div id="armenian-letter">Է</div>
         <div class="hero-orb-hint">◉ neural orb active</div>
       </div>
 
@@ -2095,7 +2119,7 @@
       const thoughts = [
         'training...', 'connecting cultures...', 'generating wonder...',
         'Երևան → ∞', 'NLP activated', 'gradient ↓', 'loss: 0.001',
-        'weights updating', 'attention: MAX', 'Ե → ?', 'inference...',
+        'weights updating', 'attention: MAX', 'Է → ∞', 'inference...',
         'embedding space', 'hallucination: 0%', 'fine-tuning', 'backprop ←',
         'context window ↑', 'Yerevan 🇦🇲', 'PyTorch ✓',
       ];
@@ -2334,7 +2358,9 @@
 
       function resize() {
         W = wrap.clientWidth;
-        H_map = Math.round(W * 0.55);
+        // Taller on narrow screens so nodes don't overlap
+        const ratio = W < 480 ? 1.1 : W < 768 ? 0.78 : 0.56;
+        H_map = Math.max(260, Math.round(W * ratio));
         canvas.width  = W;
         canvas.height = H_map;
         canvas.style.height = H_map + 'px';
@@ -2586,19 +2612,10 @@
         });
       }
 
-      // GSAP ScrollTrigger — only for elements NOT managed by CSS awakened transitions
+      // GSAP ScrollTrigger — register plugin for any future use
       if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         gsap.registerPlugin(ScrollTrigger);
-
-        // Project cards stagger (CSS doesn't manage initial opacity on these)
-        gsap.utils.toArray('.project-artifact').forEach((card, i) => {
-          gsap.set(card, { opacity: 0, y: 35 });
-          gsap.to(card, {
-            scrollTrigger: { trigger: card, start: 'top 90%', once: true },
-            y: 0, opacity: 1, duration: 0.7,
-            ease: 'power2.out', delay: (i % 3) * 0.1
-          });
-        });
+        // All section animations handled by CSS + IntersectionObserver above
       }
     })();
 
@@ -2768,10 +2785,12 @@
     (function initLetterParallax() {
       const letter = $('#armenian-letter');
       if (!letter || isReducedMotion || isMobile) return;
+      // Base transform keeps the letter centered (left:50% top:50% set in CSS)
+      // Parallax shifts it slightly with mouse movement
       window.addEventListener('mousemove', (e) => {
-        const mx = (e.clientX / window.innerWidth  - 0.5) * 20;
-        const my = (e.clientY / window.innerHeight - 0.5) * 10;
-        letter.style.transform = `translate(${mx}px, ${my}px)`;
+        const dx = (e.clientX / window.innerWidth  - 0.5) * 18;
+        const dy = (e.clientY / window.innerHeight - 0.5) * 10;
+        letter.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
       }, { passive: true });
       // Fade letter out on scroll
       window.addEventListener('scroll', () => {
