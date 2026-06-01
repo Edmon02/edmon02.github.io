@@ -1,27 +1,28 @@
-# Edmon Sahakyan Portfolio
+# Edmon Sahakyan Link Hub
 
-Static, performant, accessible portfolio website for **Edmon Sahakyan** (Full-Stack Developer & AI/ML Researcher). Hosted via **GitHub Pages** at: https://edmon02.github.io
+Static, performant, accessible link-hub portfolio for **Edmon Sahakyan**. The site combines a high-conversion link page with featured work, background, and direct contact. Hosted via **GitHub Pages** at: https://edmon02.github.io
 
 ## Features
-- Single-page layout (semantic HTML5 sections with smooth scrolling)
-- Responsive (mobile-first, CSS Grid / Flexbox)
-- Dark / Light mode with persistence (localStorage)
-- IntersectionObserver fade-in animations (reduced-motion friendly)
-- SEO: meta tags, Open Graph, Twitter Card, sitemap.xml, robots.txt, JSON-LD schema
-- Accessibility: skip link, ARIA labels, focus styles, color contrast, keyboard-friendly nav
-- Lightweight (no frameworks) – vanilla HTML/CSS/JS
-- Copy-to-clipboard email and active section highlighting
-- Privacy policy placeholder & analytics placeholder
+- Linktree-inspired homepage with clear primary actions and large tap targets
+- Featured project cards and concise proof-of-work sections
+- Responsive layout for desktop and mobile
+- Dark / light mode with persistence via `localStorage`
+- Scroll-linked section highlighting and reveal animations
+- Copy-to-clipboard email actions
+- SEO support with meta tags, Open Graph, Twitter Card, sitemap, robots, and JSON-LD
+- Accessible structure with skip link, landmarks, focus states, and reduced-motion support
+- Lightweight vanilla HTML, CSS, and JavaScript
 
 ## Structure
 ```
-index.html        # Main single-page portfolio
-styles.css        # All styling (light/dark themes, responsive, animations)
-script.js         # Interactivity (theme toggle, fade-ins, nav, copy email)
+index.html        # Main link-hub homepage
+styles.css        # Visual system, layout, themes, and responsive styles
+script.js         # Theme toggle, reveal effects, anchor nav, and copy actions
 sitemap.xml       # Search engine crawling instructions
 robots.txt        # Crawler directives
-privacy.html      # Privacy policy placeholder
-favicon.ico       # Site icon (placeholder)
+privacy.html      # Privacy policy page
+404.html          # Not-found page
+favicon.ico       # Site icon
 README.md         # Project documentation
 ```
 
@@ -33,7 +34,7 @@ git clone https://github.com/Edmon02/edmon02.github.io.git
 cd edmon02.github.io
 open index.html   # macOS (or double-click in Finder)
 ```
-Optional: Run a tiny local server for better relative path testing:
+Optional: Run a tiny local server:
 ```bash
 python3 -m http.server 8080
 # Then visit http://localhost:8080
@@ -54,7 +55,7 @@ python3 -m http.server 8080
 ## Accessibility Checklist
 - Landmarks: header, main, footer
 - Skip link to main content
-- Sufficient contrast in both themes
+- Keyboard-friendly anchor navigation and buttons
 - Focus indicators preserved
 - Reduced motion support via media query
 
@@ -64,17 +65,24 @@ python3 -m http.server 8080
 - Consider adding `<link rel="preload" as="image">` for hero image if needed
 
 ## Updating Content
-Edit `index.html` sections: About, Skills, Experience, Projects, Education, Contact.
-Add project cards within `#projects` (follow existing structure). Keep alt text and semantics.
+Edit these homepage areas in `index.html`:
+
+- Hero: headline, summary, proof points, profile card
+- Primary links: `#links`
+- Featured projects: `#projects`
+- Background and stack: `#about`
+- Final call-to-action: `#contact`
+
+Keep asset paths relative so the site works both on GitHub Pages and when opened locally.
 
 ## Dark Mode
-Toggled via button (SVG sun/moon) – sets `.dark` class on `<html>`. Preference saved in `localStorage` key: `theme`.
+The toggle sets a `.dark` class on `<html>`. Preference is saved in the `localStorage` key `theme`.
 
 ## Analytics
 Uncomment the Google Analytics gtag snippet in `index.html` and replace `GA_MEASUREMENT_ID` when ready.
 
 ## License
-Content © 2025 Edmon Sahakyan. Code snippets may be reused with attribution.
+Content © 2026 Edmon Sahakyan. Code snippets may be reused with attribution.
 
 ## Contact
 Email: [edmon.sahakyan@gmail.com](mailto:edmon.sahakyan@gmail.com)

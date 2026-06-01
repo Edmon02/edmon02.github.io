@@ -1,113 +1,145 @@
-/* =====================================================
-   Edmon Sahakyan Portfolio - Interaction Script
-   ===================================================== */
 (function() {
   const docEl = document.documentElement;
   const themeToggle = document.getElementById('theme-toggle');
-  const navToggle = document.querySelector('.nav-toggle');
-  const navList = document.getElementById('nav-menu');
-  const emailLinks = document.querySelectorAll('.copy-email');
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+  const copyStatus = document.getElementById('copy-status');
+  const navLinks = Array.from(document.querySelectorAll('.nav a[href^="#"]'));
+  const sections = Array.from(document.querySelectorAll('main section[id]'));
+  const revealNodes = document.querySelectorAll('.reveal');
+  const copyTriggers = document.querySelectorAll('[data-copy]');
+  const yearNode = document.getElementById('year');
 
-  // Theme Persistence
-  const storedTheme = localStorage.getItem('theme');
-  if (storedTheme === 'dark' || (!storedTheme && prefersDark.matches)) {
-    docEl.classList.add('dark');
+  function applyTheme(isDark) {
+    docEl.classList.toggle('dark', isDark);
+    if (themeToggle) {
+      themeToggle.setAttribute('aria-pressed', String(isDark));
+      themeToggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+      themeToggle.title = isDark ? 'Switch to light mode' : 'Switch to dark mode';
+    }
   }
+
+  const storedTheme = localStorage.getItem('theme');
+  applyTheme(storedTheme ? storedTheme === 'dark' : prefersDark.matches);
 
   themeToggle?.addEventListener('click', () => {
-    docEl.classList.toggle('dark');
-    const isDark = docEl.classList.contains('dark');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    const nextIsDark = !docEl.classList.contains('dark');
+    applyTheme(nextIsDark);
+    localStorage.setItem('theme', nextIsDark ? 'dark' : 'light');
   });
 
-  // Accessible Nav Toggle
-  navToggle?.addEventListener('click', () => {
-    const expanded = navToggle.getAttribute('aria-expanded') === 'true';
-    navToggle.setAttribute('aria-expanded', String(!expanded));
-    navList.classList.toggle('open');
-  });
-  navList?.addEventListener('click', e => {
-    if (e.target.matches('a')) {
-      navList.classList.remove('open');
-      navToggle?.setAttribute('aria-expanded', 'false');
+  prefersDark.addEventListener('change', event => {
+    if (!localStorage.getItem('theme')) {
+      applyTheme(event.matches);
     }
   });
 
-  // Smooth scroll (improved; rely on native + offset management if needed later)
-  document.querySelectorAll('a[href^="#"]').forEach(link => {
-    link.addEventListener('click', e => {
-      const targetId = link.getAttribute('href').substring(1);
-      const target = document.getElementById(targetId);
-      if (target) {
-        e.preventDefault();
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        history.replaceState(null, '', '#' + targetId);
+  navLinks.forEach(link => {
+    link.addEventListener('click', event => {
+      const targetId = link.getAttribute('href')?.slice(1);
+      const target = targetId ? document.getElementById(targetId) : null;
+
+      if (!target) {
+        return;
       }
+
+      event.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', '#' + targetId);
     });
   });
 
-  // Intersection Observer for fade-in sections
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.15 });
+  if ('IntersectionObserver' in window) {
+    const revealObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.18, rootMargin: '0px 0px -30px 0px' });
 
-  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+    revealNodes.forEach(node => revealObserver.observe(node));
 
-  // Active nav link highlight
-  const sections = Array.from(document.querySelectorAll('main section[id]'));
-  const navLinks = Array.from(document.querySelectorAll('.nav-list a'));
-  const sectionObserver = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const id = entry.target.id;
-        navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + id));
-      }
-    });
-  }, { threshold: 0.45 });
-  sections.forEach(sec => sectionObserver.observe(sec));
+    const sectionObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) {
+          return;
+        }
 
-  // Copy email to clipboard with feedback
-  function copyText(text) {
-    if (navigator.clipboard) {
-      return navigator.clipboard.writeText(text);
+        const activeId = '#' + entry.target.id;
+        navLinks.forEach(link => link.classList.toggle('active', link.getAttribute('href') === activeId));
+      });
+    }, { threshold: 0.5, rootMargin: '-20% 0px -35% 0px' });
+
+    sections.forEach(section => sectionObserver.observe(section));
+  } else {
+    revealNodes.forEach(node => node.classList.add('visible'));
+  }
+
+  function copyText(value) {
+    if (navigator.clipboard?.writeText) {
+      return navigator.clipboard.writeText(value);
     }
+
     const textarea = document.createElement('textarea');
-    textarea.value = text; document.body.appendChild(textarea); textarea.select();
-    try { document.execCommand('copy'); } catch(e) {} finally { textarea.remove(); }
+    textarea.value = value;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'absolute';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+
+    try {
+      document.execCommand('copy');
+    } finally {
+      textarea.remove();
+    }
+
     return Promise.resolve();
   }
-  emailLinks.forEach(link => {
-    link.addEventListener('click', e => {
-      const copyVal = link.getAttribute('data-copy');
-      if (copyVal) {
-        e.preventDefault();
-        copyText(copyVal).then(() => {
-          const tooltip = link.querySelector('.tooltip');
-            if (tooltip) {
-              tooltip.textContent = 'Copied!';
-              tooltip.style.opacity = '1';
-              tooltip.style.transform = 'translateY(-6px)';
-              setTimeout(() => {
-                tooltip.textContent = 'Copy';
-                tooltip.removeAttribute('style');
-              }, 1800);
-            }
-        });
+
+  copyTriggers.forEach(trigger => {
+    trigger.addEventListener('click', event => {
+      const value = trigger.getAttribute('data-copy');
+      if (!value) {
+        return;
       }
+
+      if (trigger.tagName === 'A') {
+        event.preventDefault();
+      }
+
+      copyText(value).then(() => {
+        const feedbackNode = trigger.querySelector('.copy-feedback');
+        const originalText = feedbackNode?.textContent;
+        const originalTriggerText = feedbackNode ? '' : trigger.textContent;
+
+        if (feedbackNode) {
+          feedbackNode.textContent = 'Copied to clipboard';
+        } else {
+          trigger.textContent = 'Copied';
+        }
+
+        if (copyStatus) {
+          copyStatus.textContent = value + ' copied to clipboard';
+        }
+
+        window.setTimeout(() => {
+          if (feedbackNode && originalText) {
+            feedbackNode.textContent = originalText;
+          } else if (!feedbackNode && originalTriggerText) {
+            trigger.textContent = originalTriggerText;
+          }
+
+          if (copyStatus) {
+            copyStatus.textContent = '';
+          }
+        }, 1800);
+      });
     });
   });
 
-  // Reduce motion preference listener
-  prefersDark.addEventListener('change', e => {
-    if (!localStorage.getItem('theme')) { // only auto update if user hasn't chosen manually
-      if (e.matches) docEl.classList.add('dark'); else docEl.classList.remove('dark');
-    }
-  });
-
+  if (yearNode) {
+    yearNode.textContent = String(new Date().getFullYear());
+  }
 })();
