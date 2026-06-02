@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Portfolio Admin</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --accent: #7c5cfc;
+      --accent-2: #5e3de8;
+      --bg: #0f0f12;
+      --bg-card: #1c1c22;
+      --bg-input: #141418;
+      --text: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --border: rgba(255,255,255,.08);
+      --danger: #ef4444;
+      --success: #22c55e;
+      --radius: 12px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100dvh;
+    }
+    a { color: var(--accent); text-decoration: none; }
+
+    /* ── Login screen ── */
+    #login-screen {
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .login-card {
+      width: 100%;
+      max-width: 360px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem 1.75rem;
+    }
+    .login-card h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: .35rem;
+    }
+    .login-card p {
+      font-size: .85rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+    .login-card .lock-icon {
+      width: 44px; height: 44px;
+      background: rgba(124,92,252,.15);
+      border-radius: 12px;
+      display: grid; place-items: center;
+      margin-bottom: 1.25rem;
+      color: var(--accent);
+    }
+
+    /* ── Admin shell ── */
+    #admin-shell { display: none; }
+    .admin-wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 4rem;
+    }
+    .admin-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .admin-header h1 { font-size: 1.2rem; font-weight: 700; }
+    .admin-header .header-actions { display: flex; gap: .6rem; align-items: center; }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      gap: .35rem;
+      margin-bottom: 1.75rem;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: .5rem 1rem;
+      font: inherit;
+      font-size: .85rem;
+      font-weight: 500;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: .2s;
+    }
+    .tab-btn.active, .tab-btn:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Panels ── */
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .panel-title {
+      font-size: .8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    /* ── Form elements ── */
+    .field { display: flex; flex-direction: column; gap: .3rem; margin-bottom: .85rem; }
+    .field:last-child { margin-bottom: 0; }
+    label { font-size: .78rem; font-weight: 500; color: var(--text-muted); }
+    input[type="text"], input[type="url"], input[type="password"], textarea, select {
+      font: inherit;
+      font-size: .875rem;
+      padding: .65rem .85rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    input[type="text"]:focus, input[type="url"]:focus, input[type="password"]:focus,
+    textarea:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(124,92,252,.15);
+    }
+    input::placeholder, textarea::placeholder { color: var(--text-muted); opacity: .5; }
+    textarea { resize: vertical; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .6rem 1.1rem;
+      font: inherit;
+      font-size: .85rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: .18s;
+      border: 1px solid transparent;
+    }
+    .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-primary:hover { background: var(--accent-2); border-color: var(--accent-2); }
+    .btn-outline { background: transparent; color: var(--text-muted); border-color: var(--border); }
+    .btn-outline:hover { color: var(--text); border-color: var(--text-muted); }
+    .btn-danger { background: transparent; color: var(--danger); border-color: rgba(239,68,68,.3); }
+    .btn-danger:hover { background: rgba(239,68,68,.1); }
+    .btn-sm { padding: .4rem .75rem; font-size: .8rem; }
+    .btn-full { width: 100%; justify-content: center; }
+
+    /* ── Social link rows ── */
+    .social-list { display: flex; flex-direction: column; gap: .6rem; }
+    .social-row-item {
+      display: grid;
+      grid-template-columns: 120px 1fr auto;
+      gap: .5rem;
+      align-items: center;
+    }
+    @media (max-width: 540px) {
+      .social-row-item { grid-template-columns: 1fr; }
+    }
+
+    /* ── Link button rows ── */
+    .link-list { display: flex; flex-direction: column; gap: .65rem; }
+    .link-row-item {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .85rem 1rem;
+    }
+    .link-row-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: .5rem;
+    }
+    .link-row-header strong { font-size: .875rem; }
+    .link-row-fields { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+    @media (max-width: 480px) {
+      .link-row-fields { grid-template-columns: 1fr; }
+    }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: 1.5rem; right: 1.5rem;
+      background: var(--success);
+      color: #fff;
+      padding: .65rem 1.1rem;
+      border-radius: 8px;
+      font-size: .85rem;
+      font-weight: 500;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity .25s, transform .25s;
+      pointer-events: none;
+      z-index: 999;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+    #toast.error { background: var(--danger); }
+
+    /* ── Preview badge ── */
+    .preview-link {
+      font-size: .78rem;
+      color: var(--text-muted);
+    }
+    .preview-link:hover { color: var(--accent); }
+
+    /* ── Error msg ── */
+    #login-error {
+      font-size: .8rem;
+      color: var(--danger);
+      margin-top: .5rem;
+      min-height: 1.1rem;
+    }
+
+    /* ── Divider ── */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+
+    /* ── Danger zone ── */
+    .danger-zone {
+      background: rgba(239,68,68,.05);
+      border: 1px solid rgba(239,68,68,.2);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+    }
+    .danger-zone .panel-title { color: var(--danger); }
+  </style>
+</head>
+<body>
+
+<!-- ── Login ── -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="lock-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <h1>Portfolio Admin</h1>
+    <p>Enter your admin password to continue.</p>
+    <form id="login-form">
+      <div class="field">
+        <label for="pwd">Password</label>
+        <input type="password" id="pwd" name="pwd" placeholder="••••••••" autocomplete="current-password" autofocus />
+      </div>
+      <div id="login-error"></div>
+      <br>
+      <button type="submit" class="btn btn-primary btn-full">Unlock</button>
+    </form>
+    <p style="font-size:.72rem;color:var(--text-muted);margin-top:1rem;text-align:center">
+      Password is stored locally. Default: <code>admin1234</code>
+    </p>
+  </div>
+</div>
+
+<!-- ── Admin Shell ── -->
+<div id="admin-shell">
+  <div class="admin-wrap">
+    <div class="admin-header">
+      <div>
+        <h1 style="display:flex;align-items:center;gap:.55rem">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>
+          <span>Portfolio Admin</span>
+        </h1>
+        <span style="font-size:.78rem;color:var(--text-muted)">Changes save to localStorage, and the footer shortcut only appears in this browser after you log in here.</span>
+      </div>
+      <div class="header-actions">
+        <a href="./index.html" target="_blank" class="btn btn-outline btn-sm">Preview →</a>
+        <button id="logout-btn" class="btn btn-outline btn-sm">Log out</button>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="profile">Profile</button>
+      <button class="tab-btn" data-tab="socials">Social Links</button>
+      <button class="tab-btn" data-tab="links">Link Buttons</button>
+      <button class="tab-btn" data-tab="security">Security</button>
+    </div>
+
+    <!-- ═══ Profile Tab ═══ -->
+    <div class="tab-panel active" id="tab-profile">
+      <div class="panel">
+        <div class="panel-title">Profile Info</div>
+        <div class="field">
+          <label>Display Name</label>
+          <input type="text" id="cfg-name" placeholder="Edmon Sahakyan" />
+        </div>
+        <div class="field">
+          <label>Bio / Tagline</label>
+          <input type="text" id="cfg-bio" placeholder="Full-Stack &amp; Machine Learning Engineer · Physics Enthusiast" />
+        </div>
+        <div class="field">
+          <label>Location</label>
+          <input type="text" id="cfg-location" placeholder="Yerevan, Armenia" />
+        </div>
+        <div class="field">
+          <label>About Me — Paragraph 1</label>
+          <textarea id="cfg-about1" rows="3"></textarea>
+        </div>
+        <div class="field">
+          <label>About Me — Paragraph 2</label>
+          <textarea id="cfg-about2" rows="2"></textarea>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <button class="btn btn-primary" id="save-profile">Save Profile</button>
+      </div>
+    </div>
+
+    <!-- ═══ Socials Tab ═══ -->
+    <div class="tab-panel" id="tab-socials">
+      <div class="panel">
+        <div class="panel-title">Social Icon Links <span style="font-weight:400;color:var(--text-muted)">(shown in profile row)</span></div>
+        <div class="social-list" id="social-list"></div>
+        <hr class="divider">
+        <button class="btn btn-outline btn-sm" id="add-social-btn">+ Add Social</button>
+      </div>
+      <div style="text-align:right">
+        <button class="btn btn-primary" id="save-socials">Save Socials</button>
+      </div>
+    </div>
+
+    <!-- ═══ Links Tab ═══ -->
+    <div class="tab-panel" id="tab-links">
+      <div class="panel">
+        <div class="panel-title">Link Buttons <span style="font-weight:400;color:var(--text-muted)">(main page buttons)</span></div>
+        <div class="link-list" id="link-list"></div>
+        <hr class="divider">
+        <button class="btn btn-outline btn-sm" id="add-link-btn">+ Add Link Button</button>
+      </div>
+      <div style="text-align:right">
+        <button class="btn btn-primary" id="save-links">Save Links</button>
+      </div>
+    </div>
+
+    <!-- ═══ Security Tab ═══ -->
+    <div class="tab-panel" id="tab-security">
+      <div class="panel">
+        <div class="panel-title">Change Admin Password</div>
+        <div class="field">
+          <label>Current Password</label>
+          <input type="password" id="sec-current" placeholder="••••••••" />
+        </div>
+        <div class="field">
+          <label>New Password</label>
+          <input type="password" id="sec-new" placeholder="••••••••" />
+        </div>
+        <div class="field">
+          <label>Confirm New Password</label>
+          <input type="password" id="sec-confirm" placeholder="••••••••" />
+        </div>
+        <button class="btn btn-primary" id="change-pwd-btn">Update Password</button>
+      </div>
+
+      <div class="danger-zone" style="margin-top:1.25rem">
+        <div class="panel-title">Danger Zone</div>
+        <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.85rem">Reset all portfolio customizations back to the hardcoded defaults.</p>
+        <button class="btn btn-danger" id="reset-all-btn">Reset All Customizations</button>
+      </div>
+    </div>
+
+  </div><!-- /admin-wrap -->
+</div><!-- /admin-shell -->
+
+<div id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  const STORAGE_KEY = 'portfolio_config';
+  const PWD_KEY = 'portfolio_admin_pwd';
+  const SESSION_KEY = 'portfolio_admin_session';
+  const ADMIN_SHORTCUT_KEY = 'portfolio_admin_shortcut';
+  const DEFAULT_PWD = 'admin1234';
+
+  // ── Default config matching current site ──
+  const DEFAULT_CONFIG = {
+    name: 'Edmon Sahakyan',
+    bio: 'Full-Stack & Machine Learning Engineer · Physics Enthusiast',
+    location: 'Yerevan, Armenia',
+    about1: 'Full-Stack & Machine Learning Engineer with 2+ years of hands-on experience in AI/NLP and modern web development. Skilled in building and deploying ML models, fine-tuning LLMs, and developing full-stack applications using Svelte, Hono, and AWS.',
+    about2: 'Passionate about creating high-performance systems and bridging the gap between AI innovation and real-world usability.',
+    socials: [
+      { label: 'GitHub',   url: 'https://github.com/Edmon02',  icon: 'github' },
+      { label: 'LinkedIn', url: 'https://www.linkedin.com/in/edmon-sahakyan-64798619a/', icon: 'linkedin' },
+      { label: 'Telegram', url: 'https://t.me/Edmon02', icon: 'telegram' },
+      { label: 'Email',    url: 'mailto:edmon.sahakyan@gmail.com', icon: 'email' },
+      { label: 'Phone',    url: 'tel:+37493791003', icon: 'phone' },
+    ],
+    links: [
+      { label: 'About Me',         href: '#about',      type: 'section', enabled: true },
+      { label: 'Skills & Tech Stack', href: '#skills',  type: 'section', enabled: true },
+      { label: 'Work Experience',  href: '#experience', type: 'section', enabled: true },
+      { label: 'Projects',         href: '#projects',   type: 'section', enabled: true },
+      { label: 'Education & Certs',href: '#education',  type: 'section', enabled: true },
+      { label: 'GitHub Profile',   href: 'https://github.com/Edmon02', type: 'external', enabled: true },
+      { label: 'LinkedIn Profile', href: 'https://www.linkedin.com/in/edmon-sahakyan-64798619a/', type: 'external', enabled: true },
+      { label: 'Get In Touch',     href: '#contact',    type: 'accent',   enabled: true },
+    ]
+  };
+
+  // ── Auth ──
+  const getPwd = () => localStorage.getItem(PWD_KEY) || DEFAULT_PWD;
+
+  const loginScreen = document.getElementById('login-screen');
+  const adminShell  = document.getElementById('admin-shell');
+
+  function checkSession() {
+    return sessionStorage.getItem(SESSION_KEY) === '1';
+  }
+  function openAdmin() {
+    localStorage.setItem(ADMIN_SHORTCUT_KEY, 'visible');
+    loginScreen.style.display = 'none';
+    adminShell.style.display = 'block';
+    loadAll();
+  }
+
+  if (checkSession()) openAdmin();
+
+  document.getElementById('login-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const pwd = document.getElementById('pwd').value;
+    if (pwd === getPwd()) {
+      sessionStorage.setItem(SESSION_KEY, '1');
+      document.getElementById('login-error').textContent = '';
+      openAdmin();
+    } else {
+      document.getElementById('login-error').textContent = 'Incorrect password.';
+      document.getElementById('pwd').focus();
+    }
+  });
+
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    sessionStorage.removeItem(SESSION_KEY);
+    location.reload();
+  });
+
+  // ── Config helpers ──
+  function getConfig() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    } catch { return {}; }
+  }
+  function saveConfig(patch) {
+    const cfg = { ...DEFAULT_CONFIG, ...getConfig(), ...patch };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg));
+  }
+  function fullConfig() {
+    return { ...DEFAULT_CONFIG, ...getConfig() };
+  }
+
+  // ── Tabs ──
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ── Toast ──
+  function toast(msg, isError) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.toggle('error', !!isError);
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2800);
+  }
+
+  // ── Load all ──
+  function loadAll() {
+    loadProfile();
+    renderSocials();
+    renderLinks();
+  }
+
+  // ──────────────────────────────────────────
+  // PROFILE
+  // ──────────────────────────────────────────
+  function loadProfile() {
+    const cfg = fullConfig();
+    document.getElementById('cfg-name').value     = cfg.name;
+    document.getElementById('cfg-bio').value      = cfg.bio;
+    document.getElementById('cfg-location').value = cfg.location;
+    document.getElementById('cfg-about1').value   = cfg.about1;
+    document.getElementById('cfg-about2').value   = cfg.about2;
+  }
+  document.getElementById('save-profile').addEventListener('click', () => {
+    saveConfig({
+      name:     document.getElementById('cfg-name').value.trim(),
+      bio:      document.getElementById('cfg-bio').value.trim(),
+      location: document.getElementById('cfg-location').value.trim(),
+      about1:   document.getElementById('cfg-about1').value.trim(),
+      about2:   document.getElementById('cfg-about2').value.trim(),
+    });
+    toast('Profile saved ✓');
+  });
+
+  // ──────────────────────────────────────────
+  // SOCIALS
+  // ──────────────────────────────────────────
+  const ICON_OPTIONS = ['github','linkedin','telegram','twitter','email','phone','youtube','instagram','website','tiktok','discord','other'];
+
+  function renderSocials() {
+    const cfg = fullConfig();
+    const list = document.getElementById('social-list');
+    list.innerHTML = '';
+    (cfg.socials || []).forEach((s, i) => {
+      const row = document.createElement('div');
+      row.className = 'social-row-item';
+      row.innerHTML = `
+        <select data-idx="${i}" data-field="icon" class="s-icon">
+          ${ICON_OPTIONS.map(o => `<option value="${o}" ${s.icon===o?'selected':''}>${o}</option>`).join('')}
+        </select>
+        <input type="url" data-idx="${i}" data-field="url" class="s-url" value="${s.url||''}" placeholder="https://..." />
+        <button class="btn btn-danger btn-sm s-del" data-idx="${i}" title="Remove">✕</button>
+      `;
+      list.appendChild(row);
+    });
+    list.querySelectorAll('.s-del').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cfg2 = fullConfig();
+        cfg2.socials.splice(Number(btn.dataset.idx), 1);
+        saveConfig({ socials: cfg2.socials });
+        renderSocials();
+      });
+    });
+  }
+
+  document.getElementById('add-social-btn').addEventListener('click', () => {
+    const cfg = fullConfig();
+    cfg.socials.push({ label: 'New', url: '', icon: 'other' });
+    saveConfig({ socials: cfg.socials });
+    renderSocials();
+  });
+
+  document.getElementById('save-socials').addEventListener('click', () => {
+    const list = document.getElementById('social-list');
+    const socials = [];
+    list.querySelectorAll('.social-row-item').forEach(row => {
+      const icon = row.querySelector('.s-icon').value;
+      const url  = row.querySelector('.s-url').value.trim();
+      if (url) socials.push({ label: icon, url, icon });
+    });
+    saveConfig({ socials });
+    toast('Socials saved ✓');
+  });
+
+  // ──────────────────────────────────────────
+  // LINK BUTTONS
+  // ──────────────────────────────────────────
+  function renderLinks() {
+    const cfg = fullConfig();
+    const list = document.getElementById('link-list');
+    list.innerHTML = '';
+    (cfg.links || []).forEach((l, i) => {
+      const item = document.createElement('div');
+      item.className = 'link-row-item';
+      item.innerHTML = `
+        <div class="link-row-header">
+          <strong>#${i+1} — ${escHtml(l.label)}</strong>
+          <div style="display:flex;gap:.4rem;align-items:center">
+            <label style="font-size:.78rem;color:var(--text-muted);display:flex;align-items:center;gap:.3rem;cursor:pointer">
+              <input type="checkbox" data-idx="${i}" class="l-enabled" ${l.enabled!==false?'checked':''} />
+              Visible
+            </label>
+            <button class="btn btn-danger btn-sm l-del" data-idx="${i}" title="Delete">✕</button>
+          </div>
+        </div>
+        <div class="link-row-fields">
+          <div class="field" style="margin:0">
+            <label>Label</label>
+            <input type="text" data-idx="${i}" class="l-label" value="${escHtml(l.label)}" />
+          </div>
+          <div class="field" style="margin:0">
+            <label>URL / Anchor</label>
+            <input type="text" data-idx="${i}" class="l-href" value="${escHtml(l.href)}" placeholder="#section or https://..." />
+          </div>
+        </div>
+        <div class="field" style="margin-top:.45rem">
+          <label>Type</label>
+          <select data-idx="${i}" class="l-type">
+            <option value="section"  ${l.type==='section' ?'selected':''}>Section (expands inline)</option>
+            <option value="external" ${l.type==='external'?'selected':''}>External link</option>
+            <option value="accent"   ${l.type==='accent'  ?'selected':''}>Accent (highlighted)</option>
+          </select>
+        </div>
+      `;
+      list.appendChild(item);
+    });
+    list.querySelectorAll('.l-del').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cfg2 = fullConfig();
+        cfg2.links.splice(Number(btn.dataset.idx), 1);
+        saveConfig({ links: cfg2.links });
+        renderLinks();
+      });
+    });
+  }
+
+  document.getElementById('add-link-btn').addEventListener('click', () => {
+    const cfg = fullConfig();
+    cfg.links.push({ label: 'New Link', href: 'https://', type: 'external', enabled: true });
+    saveConfig({ links: cfg.links });
+    renderLinks();
+    toast('Link added — fill in details then Save Links');
+  });
+
+  document.getElementById('save-links').addEventListener('click', () => {
+    const list = document.getElementById('link-list');
+    const links = [];
+    list.querySelectorAll('.link-row-item').forEach((row, i) => {
+      links.push({
+        label:   row.querySelector('.l-label').value.trim(),
+        href:    row.querySelector('.l-href').value.trim(),
+        type:    row.querySelector('.l-type').value,
+        enabled: row.querySelector('.l-enabled').checked,
+      });
+    });
+    saveConfig({ links });
+    toast('Links saved ✓');
+  });
+
+  // ──────────────────────────────────────────
+  // SECURITY
+  // ──────────────────────────────────────────
+  document.getElementById('change-pwd-btn').addEventListener('click', () => {
+    const current = document.getElementById('sec-current').value;
+    const newPwd  = document.getElementById('sec-new').value;
+    const confirm = document.getElementById('sec-confirm').value;
+    if (current !== getPwd()) { toast('Current password is wrong', true); return; }
+    if (newPwd.length < 6)    { toast('New password must be 6+ characters', true); return; }
+    if (newPwd !== confirm)    { toast('Passwords do not match', true); return; }
+    localStorage.setItem(PWD_KEY, newPwd);
+    document.getElementById('sec-current').value = '';
+    document.getElementById('sec-new').value = '';
+    document.getElementById('sec-confirm').value = '';
+    toast('Password updated ✓');
+  });
+
+  document.getElementById('reset-all-btn').addEventListener('click', () => {
+    if (!confirm('Reset all customizations to defaults? This cannot be undone.')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    loadAll();
+    toast('Reset to defaults ✓');
+  });
+
+  // ── Utility ──
+  function escHtml(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+})();
+</script>
+</body>
+</html>
