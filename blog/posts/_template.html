@@ -3,10 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Privacy Policy — edmon02</title>
-  <meta name="robots" content="noindex" />
-  <link rel="canonical" href="https://edmon02.github.io/privacy.html" />
+  <title>{title} — edmon02</title>
+  <meta name="description" content="{description}" />
+  <link rel="canonical" href="https://edmon02.github.io/blog/posts/{slug}.html" />
   <meta name="theme-color" content="#050505" />
+  <meta property="og:title" content="{title} — edmon02" />
+  <meta property="og:description" content="{description}" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://edmon02.github.io/blog/posts/{slug}.html" />
   <link rel="icon" href="/favicon.ico" sizes="any" />
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png" />
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
@@ -17,7 +21,7 @@
 
   <div class="page">
     <header class="page-header">
-      <a class="back-link" href="/">← back</a>
+      <a class="back-link" href="/blog/">← blog</a>
       <nav class="social-links" aria-label="Social links">
         <a href="https://github.com/Edmon02" target="_blank" rel="noopener noreferrer">gh</a>
         <a href="https://www.linkedin.com/in/edmon-sahakyan-64798619a/" target="_blank" rel="noopener noreferrer">in</a>
@@ -27,22 +31,20 @@
       </nav>
     </header>
 
-    <main id="main" class="page-content legal-page fade-in-up" tabindex="-1">
-      <h1>Privacy Policy</h1>
-      <p>This site does not collect personal data directly. Any contact initiated via a mailto link uses your email client.</p>
+    <main id="main" class="page-content blog-post fade-in-up" tabindex="-1">
+      <header class="blog-post-header">
+        <h1>{title}</h1>
+        <time class="blog-post-date" datetime="{date-iso}">{date-display}</time>
+      </header>
 
-      <h2>Data Collection</h2>
-      <p>No forms submit data to a server. Email links open your local email client.</p>
-
-      <h2>Cookies</h2>
-      <p>This site does not use cookies or localStorage.</p>
-
-      <h2>Third-Party Services</h2>
-      <p>Fonts are loaded from jsDelivr CDN. GitHub Pages may log standard server access data.</p>
-
-      <h2>Contact</h2>
-      <p>For privacy concerns: <a href="mailto:edmon.sahakyan@gmail.com">edmon.sahakyan@gmail.com</a></p>
+      <article class="prose">
+        <!-- Replace with your post content -->
+        <p>{content}</p>
+      </article>
     </main>
   </div>
+
+  <button id="scroll-top" class="scroll-top" type="button" aria-label="Back to top">↑</button>
+  <script defer src="/blog.js"></script>
 </body>
 </html>

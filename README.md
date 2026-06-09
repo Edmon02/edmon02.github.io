@@ -1,82 +1,53 @@
-# Edmon Sahakyan Portfolio
+# edmon02 — personal site
 
-Static, performant, accessible portfolio website for **Edmon Sahakyan** (Full-Stack Developer & AI/ML Researcher). Hosted via **GitHub Pages** at: https://edmon02.github.io
+Minimal static portfolio and blog for **Edmon Sahakyan**, hosted on [GitHub Pages](https://edmon02.github.io).
 
-## Features
-- Single-page layout (semantic HTML5 sections with smooth scrolling)
-- Responsive (mobile-first, CSS Grid / Flexbox)
-- Dark / Light mode with persistence (localStorage)
-- IntersectionObserver fade-in animations (reduced-motion friendly)
-- SEO: meta tags, Open Graph, Twitter Card, sitemap.xml, robots.txt, JSON-LD schema
-- Accessibility: skip link, ARIA labels, focus styles, color contrast, keyboard-friendly nav
-- Lightweight (no frameworks) – vanilla HTML/CSS/JS
-- Copy-to-clipboard email and active section highlighting
-- Privacy policy placeholder & analytics placeholder
+Inspired by [t3.gg](https://t3.gg) — dark, monospace, no frameworks.
 
 ## Structure
+
 ```
-index.html        # Main single-page portfolio
-styles.css        # All styling (light/dark themes, responsive, animations)
-script.js         # Interactivity (theme toggle, fade-ins, nav, copy email)
-sitemap.xml       # Search engine crawling instructions
-robots.txt        # Crawler directives
-privacy.html      # Privacy policy placeholder
-favicon.ico       # Site icon (placeholder)
-README.md         # Project documentation
+index.html              # Homepage (name, tagline, links)
+styles.css              # All styling
+blog/
+  index.html            # Blog post list
+  posts/
+    when-ai-builds-itself.html   # Published posts
+    _template.html      # Copy this for new posts
+404.html                # Not found page
+privacy.html            # Privacy policy
+sitemap.xml             # Search engine sitemap
+robots.txt              # Crawler directives
+blog.js                  # Scroll-to-top on blog pages
+assets/
+  favicon.png            # Site logo / favicon source
+  favicon-32.png         # Browser tab icon
+  apple-touch-icon.png   # iOS home screen icon
+favicon.ico              # Legacy favicon
 ```
 
-## Usage / Local Preview
-Clone the repository and open `index.html` directly (no build needed):
+## Local Preview
 
 ```bash
 git clone https://github.com/Edmon02/edmon02.github.io.git
 cd edmon02.github.io
-open index.html   # macOS (or double-click in Finder)
-```
-Optional: Run a tiny local server for better relative path testing:
-```bash
 python3 -m http.server 8080
-# Then visit http://localhost:8080
+# Visit http://localhost:8080
 ```
 
-## Deployment (GitHub Pages)
-1. Push all files to the `main` branch of the repo named `edmon02.github.io` (exact match).
-2. In GitHub: Settings → Pages → Ensure Source: `Deploy from a branch`, Branch: `main` (root).
-3. Wait ~1–2 minutes for propagation. Visit https://edmon02.github.io
+## Deployment
 
-## SEO Checklist
-- Canonical link: set to root
-- Sitemap: `/sitemap.xml`
-- Robots: `robots.txt` allows all
-- Open Graph & Twitter meta tags configured
-- JSON-LD Person schema embedded in `<head>`
+Push to `main` on the `edmon02.github.io` repo. GitHub Pages serves the root automatically.
 
-## Accessibility Checklist
-- Landmarks: header, main, footer
-- Skip link to main content
-- Sufficient contrast in both themes
-- Focus indicators preserved
-- Reduced motion support via media query
+## Adding a Blog Post
 
-## Performance Tips
-- Replace placeholder profile image & `og-image.png` with optimized (≤150KB, WebP/PNG)
-- Serve images with width/height attributes (already included)
-- Consider adding `<link rel="preload" as="image">` for hero image if needed
-
-## Updating Content
-Edit `index.html` sections: About, Skills, Experience, Projects, Education, Contact.
-Add project cards within `#projects` (follow existing structure). Keep alt text and semantics.
-
-## Dark Mode
-Toggled via button (SVG sun/moon) – sets `.dark` class on `<html>`. Preference saved in `localStorage` key: `theme`.
-
-## Analytics
-Uncomment the Google Analytics gtag snippet in `index.html` and replace `GA_MEASUREMENT_ID` when ready.
-
-## License
-Content © 2025 Edmon Sahakyan. Code snippets may be reused with attribution.
+1. Copy `blog/posts/_template.html` to `blog/posts/your-slug.html`
+2. Replace `{title}`, `{description}`, `{slug}`, `{date-iso}`, `{date-display}`, and `{content}`
+3. Add a row to the list in `blog/index.html`
+4. Add the URL to `sitemap.xml`
 
 ## Contact
-Email: [edmon.sahakyan@gmail.com](mailto:edmon.sahakyan@gmail.com)
-GitHub: https://github.com/Edmon02
-LinkedIn: https://www.linkedin.com/in/edmon-sahakyan-64798619a/
+
+- Email: [edmon.sahakyan@gmail.com](mailto:edmon.sahakyan@gmail.com)
+- GitHub: https://github.com/Edmon02
+- LinkedIn: https://www.linkedin.com/in/edmon-sahakyan-64798619a/
