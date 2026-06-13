@@ -403,6 +403,19 @@ img {
   line-height: 1.5;
 }
 
+.prose .figure-caption {
+  margin-top: -0.75rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.prose-figure img[src$=".svg"] {
+  background: var(--surface);
+  padding: 1rem;
+}
+
 .table-wrap {
   overflow-x: auto;
   margin: 1.5rem 0;
