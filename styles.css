@@ -252,7 +252,7 @@ img {
 .blog-list a {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: flex-start;
   gap: 1.5rem;
   padding: 1rem 0;
   color: var(--text);
@@ -262,8 +262,26 @@ img {
   color: var(--accent);
 }
 
+.blog-list .post-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
 .blog-list .post-title {
   flex: 1;
+}
+
+.blog-list .post-blurb {
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.blog-list a:hover .post-blurb {
+  color: var(--subtle);
 }
 
 .blog-list .post-date {

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>How I built a CMS an arts institute can actually use — edmon02</title>
+    <meta name="description" content="Bilingual tabs, roles that match a real building, a block editor, and publish that does not need a deploy. How I built the admin behind ystfi.am." />
+    <link rel="canonical" href="https://edmon02.github.io/blog/posts/a-cms-the-institute-can-use.html" />
+    <meta name="theme-color" content="#050505" />
+    <meta property="og:title" content="How I built a CMS an arts institute can actually use — edmon02" />
+    <meta property="og:description" content="Bilingual tabs, roles, a block editor, and publish that does not need a deploy." />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://edmon02.github.io/blog/posts/a-cms-the-institute-can-use.html" />
+    <meta property="og:image" content="https://edmon02.github.io/assets/blog/ystfi-cms/public-home-en.png" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <div class="page">
+      <header class="page-header">
+        <a class="back-link" href="/blog/">← blog</a>
+        <nav class="social-links" aria-label="Social links">
+          <a href="https://github.com/Edmon02" target="_blank" rel="noopener noreferrer">gh</a>
+          <a href="https://www.linkedin.com/in/edmon-sahakyan-64798619a/" target="_blank" rel="noopener noreferrer">in</a>
+          <a href="https://www.instagram.com/edmon.sahakyan/" target="_blank" rel="noopener noreferrer">ig</a>
+          <a href="mailto:edmon.sahakyan@gmail.com">mail</a>
+          <a href="https://t.me/Edmon02" target="_blank" rel="noopener noreferrer">tg</a>
+        </nav>
+      </header>
+
+      <main id="main" class="page-content blog-post blog-post--wide fade-in-up" tabindex="-1">
+        <header class="blog-post-header">
+          <h1>How I built a CMS an arts institute can actually use</h1>
+          <time class="blog-post-date" datetime="2026-09-02">Sep 2, 2026</time>
+        </header>
+
+        <article class="prose">
+          <p class="lede"><em>TipTap is not the story. Armenian owns the root URL, one form has to ship both languages, and the people who press Publish are not engineers.</em></p>
+
+          <figure class="prose-figure">
+            <img src="/assets/blog/ystfi-cms/public-home-en.png" alt="YSTFI English homepage with a diamond-framed stage photograph and ENG language toggle" loading="lazy" />
+            <figcaption>The public site in English. Same page in Armenian lives at the root URL, not under /hy.</figcaption>
+          </figure>
+
+          <p>I built the official website for the <a href="https://www.ystfi.am/en" target="_blank" rel="noopener noreferrer">Yerevan State Institute of Theatre and Cinematography</a> — YSTFI / ԵԹԿՊԻ. Next.js 15, Postgres, S3, Vercel. The repo is private. The product is not: students, applicants, and staff use it every week.</p>
+
+          <p>What I want to show here is not “I installed a rich text editor.” Hardcoded pages do not survive a semester. The rectorate should not open a pull request to change an admissions PDF. So I built an admin that matches the building: Armenian first, English second, and roles for people who actually work there.</p>
+
+          <figure class="prose-figure">
+            <img src="/assets/blog/ystfi-cms/public-home-hy.png" alt="YSTFI Armenian homepage with ARM language toggle and Armenian navigation" loading="lazy" />
+            <figcaption>Same homepage, Armenian. <code>ARM</code> in the header is not a theme. It is the default locale.</figcaption>
+          </figure>
+
+          <hr class="prose-hr" />
+
+          <h2>The constraint: Armenian owns <code>/</code></h2>
+
+          <p>Most next-intl tutorials assume English is the default and every locale gets a prefix. That is wrong for this institute. The audience is in Yerevan. English is the second language, not the home language.</p>
+
+          <pre><code>export const routing = defineRouting({
+  locales: ['en', 'hy'],
+  defaultLocale: 'hy',
+  localePrefix: 'as-needed',
+});</code></pre>
+
+          <p><code>as-needed</code> means <code>/en/news/...</code> for English and <code>/news/...</code> for Armenian. No <code>/hy</code> tax on the majority language. Middleware also turns locale detection off, so a browser set to English does not kidnap the Armenian homepage. Admin and the lobby TV kiosk opt out of locale routing entirely — they are tools, not public pages.</p>
+
+          <p>That decision leaks into the CMS. If the public site is bilingual, the editor cannot be a single English textarea with a “translate later” checkbox. Later never comes.</p>
+
+          <hr class="prose-hr" />
+
+          <h2>One form, two languages</h2>
+
+          <p>Every managed field that appears on the public site has an English side and an Armenian side. Not two sites. Not a CSV import. One form, a tab, and a status so you can see which language is still empty.</p>
+
+          <figure class="prose-figure">
+            <img src="/assets/blog/ystfi-cms/article-block-editor.png" alt="Article translation tabs: Armenian needs content, English is ready and selected" loading="lazy" />
+            <figcaption>Per-locale completeness on the article form. You can draft English first. You cannot pretend Armenian does not exist.</figcaption>
+          </figure>
+
+          <p>On articles the tabs live on the whole document: title, slug preview, and block content all swap with the locale. On documents, admissions copy, and media links I reused a smaller widget — English / Հայերեն on the same field.</p>
+
+          <figure class="prose-figure">
+            <img src="/assets/blog/ystfi-cms/documents-bilingual.png" alt="Create Document Category dialog with English and Armenian title tabs filled with dummy studio notes" loading="lazy" />
+            <figcaption>Dummy data only. The dialog is the same pattern: one slug, two titles, pick which public section it belongs to.</figcaption>
+          </figure>
+
+          <pre><code>const [activeTab, setActiveTab] = useState&lt;'en' | 'hy'&gt;('en');
+
+&lt;button type="button" onClick={() =&gt; setActiveTab('en')}&gt;
+  English
+&lt;/button&gt;
+&lt;button type="button" onClick={() =&gt; setActiveTab('hy')}&gt;
+  Հայերեն
+&lt;/button&gt;</code></pre>
+
+          <p>The boring part matters: required bilingual copy is a product rule, not a database nullability trick. Staff can publish one language before the other on some surfaces, but the UI never hides the empty side.</p>
+
+          <p>Titles also have to become URLs. Armenian in a path breaks S3 keys and a lot of share previews, so I transliterate into ASCII before slugifying.</p>
+
+          <pre><code>function transliterateArmenian(input: string): string {
+  let output = '';
+  for (const char of input) {
+    output += ARMENIAN_TO_LATIN_MAP[char] ?? char;
+  }
+  return output;
+}</code></pre>
+
+          <p>This is honest, not cute: <code>ու</code> is two characters (<code>ո</code> + <code>ւ</code>), so “ստուդիա” becomes <code>stovdia</code>, not <code>studio</code>. I found that while screenshotting a dummy article. The slug is still shareable. Perfect English phonetics was never the requirement — ASCII that does not explode in a bucket path was.</p>
+
+          <figure class="prose-figure">
+            <img src="/assets/blog/ystfi-cms/article-hy-tab.png" alt="Create article form in Armenian with dummy title and auto-generated ASCII slug" loading="lazy" />
+            <figcaption>Dummy Armenian title. The preview path is ASCII. Draft stays draft — this never hit production.</figcaption>
+          </figure>
+
+          <hr class="prose-hr" />
+
+          <h2>Staff think in blocks, not HTML</h2>
+
+          <p>TipTap is how text gets bold. The model staff actually use is blocks: add a text block, add an image block, move them. News is not one giant HTML string in their head. It is a photo, then a paragraph, then another photo.</p>
+
+          <pre><code>const addTextBlock = () =&gt; {
+  updateBlocks([
+    ...value.blocks,
+    { id: uuid(), type: 'text', order: value.blocks.length, content: { text: '' } },
+  ]);
+};
+
+const addImageBlock = () =&gt; {
+  updateBlocks([
+    ...value.blocks,
+    {
+      id: uuid(),
+      type: 'image',
+      order: value.blocks.length,
+      content: { caption: '', alt_text: '', media_id: '' },
+    },
+  ]);
+};</code></pre>
+
+          <p>Each locale stores its own block list. Switching Armenian / English does not share a body and hope. The editor itself is TipTap with a small surface: starter kit, links, images, placeholder, and an HTML toggle for the one person who will paste a table.</p>
+
+          <pre><code>useEditor({
+  extensions: [
+    StarterKit,
+    Link.configure({ openOnClick: false }),
+    Image,
+    Placeholder.configure({ placeholder }),
+  ],
+  content: value,
+  onUpdate: ({ editor }) =&gt; onChange(editor.getHTML()),
+});</code></pre>
+
+          <p>Images do not sit as anonymous blobs. Uploads go through an auth-wrapped API and land in S3 under the article type and slug, so deleting an article can clean the folder instead of leaving orphaned files in a junk bucket.</p>
+
+          <figure class="prose-figure">
+            <img src="/assets/blog/ystfi-cms/article-en-editor.png" alt="Create article form in English with dummy title Studio lighting workshop, draft status selected" loading="lazy" />
+            <figcaption>English side of the same dummy article. Status is Draft. Featured image is shared across locales so you do not upload twice.</figcaption>
+          </figure>
+
+          <hr class="prose-hr" />
+
+          <h2>Roles that match the building</h2>
+
+          <p>A SaaS CMS gives you “Admin” and “Member.” An institute has a PR person who should ship news, someone in the office who updates staff photos, and a viewer who only needs to check that the page is right. Super-admin is me, and it is not assignable from the users screen.</p>
+
+          <figure class="prose-figure">
+            <img src="/assets/blog/ystfi-cms/admin-dashboard.png" alt="Admin dashboard with task cards for news, staff, documents, and admissions" loading="lazy" />
+            <figcaption>The dashboard is task-first. “Manage Users” only shows for super-admin. Editors never see that button.</figcaption>
+          </figure>
+
+          <div class="table-wrap">
+            <table>
+              <tr>
+                <th>Role</th>
+                <th>Who</th>
+                <th>What they can do</th>
+              </tr>
+              <tr>
+                <td><code>super_admin</code></td>
+                <td>Platform</td>
+                <td>Everything, including users</td>
+              </tr>
+              <tr>
+                <td><code>admin</code></td>
+                <td>Office / IT</td>
+                <td>Content, staff, media, exam results, lobby display</td>
+              </tr>
+              <tr>
+                <td><code>editor</code></td>
+                <td>PR / communications</td>
+                <td>Create and edit articles, upload media</td>
+              </tr>
+              <tr>
+                <td><code>viewer</code></td>
+                <td>Read-only</td>
+                <td>Look. No publish.</td>
+              </tr>
+            </table>
+          </div>
+
+          <pre><code>export enum Role {
+  SUPER_ADMIN = 'super_admin',
+  ADMIN = 'admin',
+  EDITOR = 'editor',
+  VIEWER = 'viewer',
+}</code></pre>
+
+          <p>Pages go through NextAuth. APIs go through a <code>withAdminAuth</code> wrapper. Middleware maps routes to permissions. One detail I only learned after shipping: JWT permissions are frozen at login. When I added the entrance-hall display CMS, existing sessions did not have the new permission bit. Forcing everyone to log out was not an option during a workday, so that route grants by <strong>role</strong> instead of the stale permission array.</p>
+
+          <pre><code>// JWT permissions are frozen at login; grant by role so existing
+// admin sessions can open the new display CMS without re-auth.
+if (pathname.startsWith('/admin/display')) {
+  return userRole === Role.ADMIN || userRole === Role.SUPER_ADMIN;
+}</code></pre>
+
+          <p>That is not a textbook RBAC diagram. That is what happens when a product keeps growing after people already have cookies.</p>
+
+          <hr class="prose-hr" />
+
+          <h2>Publish is a cache event — until it costs money</h2>
+
+          <p>The original idea was clean. Public pages should not hit Postgres on every visit. When an editor saves a published article, invalidate the tags the homepage actually uses.</p>
+
+          <pre><code>if (status === 'published' || article.status === 'published') {
+  revalidateTag('homepage-content');
+  revalidateTag(`articles-${articleType}`);
+  revalidateTag(`article-${hashSlugForCache(article.slug)}`);
+}</code></pre>
+
+          <p>I even hashed slugs before using them as cache tags, because tag charset and length limits are real.</p>
+
+          <p>Then staff pages entered the picture. Editing one employee wanted to revalidate every faculty page that mentioned them. Hundreds of tags. Vercel Fast Origin Transfer went up about 6×. In February 2026 I archived the broad <code>unstable_cache</code> / ISR layer to stop the bleed. Article saves still call <code>revalidateTag</code>. The “cache everything, invalidate forever” version is not how the site runs today.</p>
+
+          <p>That is the honest version. Publish was supposed to be the only expensive moment. Over-invalidation made the expensive moment happen in the wrong place. I will write that war story separately. It is a different craft problem.</p>
+
+          <hr class="prose-hr" />
+
+          <h2>What this actually shows</h2>
+
+          <p>Anyone can drop TipTap into a form. The work was deciding that:</p>
+
+          <ul>
+            <li>Armenian is the default URL, not a translation plugin.</li>
+            <li>The editor UI must make the empty language visible.</li>
+            <li>Content is blocks because that is how the staff already think.</li>
+            <li>Roles follow the org chart, and later features have to respect sessions that already exist.</li>
+            <li>Caching is a cost center, not a badge.</li>
+          </ul>
+
+          <p>The public site is live at <a href="https://www.ystfi.am" target="_blank" rel="noopener noreferrer">ystfi.am</a>. Screenshots here use dummy copy in a local admin session. No student records, no exam results, no pairing tokens.</p>
+
+          <p>Until next time: the lobby TVs. Cheap Android screens that ignore <code>cursor: none</code>, eat the Back key, and still have to show a 9:16 playlist without a person standing in the hall.</p>
+        </article>
+      </main>
+    </div>
+
+    <button id="scroll-top" class="scroll-top" type="button" aria-label="Back to top">↑</button>
+    <script defer src="/blog.js"></script>
+  </body>
+</html>
